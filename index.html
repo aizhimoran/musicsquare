@@ -1632,7 +1632,7 @@
       enabledSources:{migu:true, netease:true, qq:true, kuwo:true},
       perSourceLimit:10,
       perSourceCurrentLimit:{migu:10, netease:10, qq:10, kuwo:10},
-      // ✅ 仅为“正确加载更多（分页）”新增：网易云使用 page；其他源保持原逻辑（加大 num 再去重）
+      // 网易云使用 page；其他源保持原逻辑（加大 num 再去重）
       perSourcePage:{migu:1, netease:1, qq:1, kuwo:1},
 
       searchKeyword:'',
@@ -1707,6 +1707,8 @@
       updatePlaylistInfoLabel();
     }
 
+    // ===================== 各平台搜索 =====================
+
     async function searchMigu(kw,limit){
       const url=`https://api.xcvts.cn/api/music/migu?gm=${encodeURIComponent(kw)}&n=&num=${encodeURIComponent(limit)}&type=json`;
       let added=0;
@@ -1732,14 +1734,14 @@
       return added;
     }
 
-    // ✅ 新增：把网易云的 quality 字段映射到 UI 的 “lossless” 标签（仅用于显示）
+    // 网易云质量 → UI 标签（仅用于显示，无接口变动）
     function neteaseQualityToTag(q){
       const s = (q || '').toString().toLowerCase();
       if (/lossless|无损|flac|ape|wav|hi-?res|sq|臻品|臻音|高清臻音|spatial/.test(s)) return 'lossless';
       return 'normal';
     }
 
-    // ✅ 新增：酷我质量映射（从 kw-api 返回的 quality / url / level.actual 判断）
+    // 酷我质量映射（detail 接口会覆盖）
     function kuwoQualityToTag(qualityStr, urlStr, actualLevel){
       const s1=(qualityStr||'').toString().toLowerCase();
       const s2=(urlStr||'').toString().toLowerCase();
@@ -1750,7 +1752,7 @@
       return 'normal';
     }
 
-    // ✅ 替换：网易云搜索改为官方授权 vkeys，且加载更多用 page 正确分页
+    // 网易云搜索（用 vkeys，page + num）
     async function searchNetease(kw, page, num){
       const url=`https://api.vkeys.cn/v2/music/netease?word=${encodeURIComponent(kw)}&page=${encodeURIComponent(page)}&num=${encodeURIComponent(num)}`;
       let added=0;
@@ -1767,7 +1769,6 @@
           const track={
             uid,
             source:'netease',
-            // 用于分组排序：把 page 信息算进去，保证顺序稳定
             displayIndex:(Math.max(1,page)-1)*Math.max(1,num) + (idx+1),
             keyword:kw,
 
@@ -1793,37 +1794,89 @@
       return added;
     }
 
-    async function searchQQKuwo(kw,limit,source){
-      const url=`https://music-dl.sayqz.com/api?&type=search&keyword=${encodeURIComponent(kw)}&source=${encodeURIComponent(source)}&limit=${encodeURIComponent(limit)}`;
+    // ✅ 新：QQ 搜索（从原 searchQQKuwo 中拆出 QQ 部分）
+    async function searchQQ(kw, limit){
+      const url=`https://music-dl.sayqz.com/api?&type=search&keyword=${encodeURIComponent(kw)}&source=qq&limit=${encodeURIComponent(limit)}`;
       let added=0;
       try{
-        const res=await fetch(url); const json=await res.json();
+        const res=await fetch(url);
+        const json=await res.json();
         if(json.code!==200||!json.data||!Array.isArray(json.data.results))return 0;
         for(const it of json.data.results){
-          const uid=`${source}-${it.id}`;
+          const uid=`qq-${it.id}`;
           if(state.trackMap.has(uid))continue;
-
-          // ✅ 关键修改（必要）：酷我不直接用 search 返回的 url/lrc，
-          //    强制后续走 kw-api.cenguigui.cn 获取播放/下载链接与歌词
-          const forceKuwoDetail = (source === 'kuwo');
-
           const track={
-            uid,source,displayIndex:0,keyword:kw,
+            uid,
+            source:'qq',
+            displayIndex:0,
+            keyword:kw,
             songid:it.id,
-            title:it.name||'',artist:it.artist||'',album:it.album||'',
+            title:it.name||'',
+            artist:it.artist||'',
+            album:it.album||'',
             cover:it.pic||null,
-            audioUrl: forceKuwoDetail ? null : (it.url||null),
-            lrc: null,
-            lrcUrl: forceKuwoDetail ? null : (it.lrc||null),
-            detailsLoaded: forceKuwoDetail ? false : !!it.url,
+            audioUrl:it.url||null,
+            lrc:null,
+            lrcUrl:it.lrc||null,
+            detailsLoaded:!!it.url,
             quality:'normal'
           };
           state.trackMap.set(uid,track);
-          state.searchResults.push(track); added++;
+          state.searchResults.push(track);
+          added++;
         }
-      }catch(e){console.error(source,e);}
+      }catch(e){console.error('qq',e);}
       return added;
     }
+
+    // ✅ 新：酷我搜索，用你提供的 kw-api 搜索接口
+    //   https://kw-api.cenguigui.cn/?name=关键词&page=1&limit=条数
+    //   解析仍然用原来的 detail 接口（id+type=song），这里只做列表
+    async function searchKuwo(kw, limit){
+      const url=`https://kw-api.cenguigui.cn/?name=${encodeURIComponent(kw)}&page=1&limit=${encodeURIComponent(limit)}`;
+      let added=0;
+      try{
+        const res=await fetch(url);
+        const json=await res.json();
+        if(json.code!==200 || !Array.isArray(json.data)) return 0;
+
+        json.data.forEach((it, idx)=>{
+          const uid=`kuwo-${it.rid}`;
+          if(state.trackMap.has(uid))return;
+
+          const track={
+            uid,
+            source:'kuwo',
+            displayIndex:idx+1,
+            keyword:kw,
+            // rid 作为后续 detail 接口的 id
+            songid:it.rid,
+
+            title:it.name||'',
+            artist:it.artist||'',
+            album:it.album||'',
+
+            cover:it.pic||null,
+
+            // 搜索阶段不直接用 url/lrc，仍走原来的 detail 解析
+            audioUrl:null,
+            lrc:null,
+            lrcUrl:null,
+            detailsLoaded:false,
+            quality:'normal'
+          };
+
+          state.trackMap.set(uid,track);
+          state.searchResults.push(track);
+          added++;
+        });
+      }catch(e){
+        console.error('kuwo search',e);
+      }
+      return added;
+    }
+
+    // ===================== 聚合搜索 =====================
 
     async function searchAllSources(reset){
       if(!state.searchKeyword){showToast(t('toastNeedKeyword'));return;}
@@ -1836,7 +1889,7 @@
         Object.keys(state.perSourceCurrentLimit)
           .forEach(k=>state.perSourceCurrentLimit[k]=state.perSourceLimit);
 
-        // ✅ 重置分页：网易云回到第 1 页
+        // 重置分页：网易云回到第 1 页
         Object.keys(state.perSourcePage).forEach(k=>state.perSourcePage[k]=1);
 
         state.searchResults=[];
@@ -1851,11 +1904,12 @@
 
         if(s==='migu')tasks.push(searchMigu(kw,limit));
 
-        // ✅ 网易云：用 page + num（每页 num=perSourceLimit）
+        // 网易云用 page+num
         if(s==='netease')tasks.push(searchNetease(kw, state.perSourcePage.netease || 1, state.perSourceLimit));
 
-        if(s==='qq')tasks.push(searchQQKuwo(kw,limit,'qq'));
-        if(s==='kuwo')tasks.push(searchQQKuwo(kw,limit,'kuwo'));
+        // ✅ 改为新函数名
+        if(s==='qq')tasks.push(searchQQ(kw,limit));
+        if(s==='kuwo')tasks.push(searchKuwo(kw,limit));
       }
       let added=0;
       try{
@@ -1879,6 +1933,8 @@
         else state.noMoreResults=false;
       }
     }
+
+    // ===================== 各平台详情（解析保持原来的逻辑） =====================
 
     async function fetchMiguDetails(track){
       const num = track.requestNum || state.perSourceCurrentLimit.migu || state.perSourceLimit || 20;
@@ -1905,11 +1961,8 @@
       }
     }
 
-    // ✅ 替换：网易云详情
-    // - 播放/封面：仍用 meting (qijieya)
-    // - 歌词：改用 vkeys lyric 接口
+    // 网易云详情：meting 拿音源 + vkeys 拿歌词
     async function fetchNeteaseDetails(track){
-      // 1) meting: 拿播放链接/封面（url/pic）
       const metingApi=`https://api.qijieya.cn/meting/?type=song&id=${encodeURIComponent(track.songid)}`;
       const res=await fetch(metingApi);
       const j=await res.json();
@@ -1923,7 +1976,6 @@
         cover:d.pic||track.cover
       });
 
-      // 2) vkeys: 拿歌词（data.lrc）
       const lyricApi=`https://api.vkeys.cn/v2/music/netease/lyric?id=${encodeURIComponent(track.songid)}`;
       try{
         const lr=await fetch(lyricApi);
@@ -1946,7 +1998,7 @@
       track.detailsLoaded=true;
     }
 
-    // ✅ 关键新增：酷我播放/下载/歌词用 kw-api.cenguigui.cn
+    // 酷我详情：继续用 kw-api 的 id+type=song 接口（解析不变）
     async function fetchKuwoDetails(track){
       const api=`https://kw-api.cenguigui.cn/?id=${encodeURIComponent(track.songid)}&type=song&level=zp&format=json`;
       const res=await fetch(api);
@@ -1962,7 +2014,7 @@
         cover:d.pic || track.cover,
         audioUrl:d.url || track.audioUrl,
         lrc: d.lyric || track.lrc || null,
-        lrcUrl: null, // kw-api 已直接返回 lyric 字符串
+        lrcUrl: null,
         quality: kuwoQualityToTag(d.quality, d.url, actual),
         detailsLoaded:true
       });
@@ -1973,9 +2025,11 @@
       dom.playerStatus.textContent=t('playerStatusLoading');
       if(track.source==='migu') await fetchMiguDetails(track);
       else if(track.source==='netease') await fetchNeteaseDetails(track);
-      else if(track.source==='kuwo') await fetchKuwoDetails(track);   // ✅ 酷我改这里
+      else if(track.source==='kuwo') await fetchKuwoDetails(track);
       else await fetchQQDetails(track);
     }
+
+    // ===================== 歌词处理 =====================
 
     function parseLRC(txt){
       if(!txt)return[];
@@ -2046,6 +2100,8 @@
         box.scrollTo({top:act.offsetTop-box.clientHeight*0.45,behavior:'smooth'});
       }
     }
+
+    // ===================== 收藏 / 播放 =====================
 
     function isFavorite(track){
       if(!track)return false;
@@ -2216,6 +2272,8 @@
       showToast(t('toastAddedToPlaylist'));
     }
 
+    // ===================== 搜索结果 / 播放列表渲染 =====================
+
     function renderMiniSearchList(){
       const wrap=dom.searchMiniList;
       wrap.innerHTML='';
@@ -2365,6 +2423,8 @@
       }
     }
 
+    // ===================== 歌单弹窗 =====================
+
     function openPlaylistModal(){
       dom.playlistModal.classList.add('show');
       dom.playlistNameInput.value='';
@@ -2388,6 +2448,8 @@
       showToast(t('toastPlaylistCreated'));
     }
 
+    // ===================== 搜索加载更多 =====================
+
     function canAutoLoadMore(){
       return !state.searchInProgress && !state.noMoreResults;
     }
@@ -2397,16 +2459,18 @@
 
       enabled.forEach(src=>{
         if(src==='netease'){
-          // ✅ 网易云：正确分页，加载下一页
+          // 网易云：正确分页，加载下一页
           state.perSourcePage.netease = (state.perSourcePage.netease || 1) + 1;
         }else{
-          // 其他源：保持原逻辑（扩大 num 然后去重）
+          // 其他源：扩大 num
           state.perSourceCurrentLimit[src]=(state.perSourceCurrentLimit[src]||state.perSourceLimit)+state.perSourceLimit;
         }
       });
 
       searchAllSources(false);
     }
+
+    // ===================== 背景粒子 & 水波纹 =====================
 
     function setupParticles(){
       const canvas=$('bg-canvas');const ctx=canvas.getContext('2d');
@@ -2497,6 +2561,8 @@
       });
     }
 
+    // ===================== DOM / 事件绑定 =====================
+
     function setupDOM(){
       dom.searchInput=$('search-input');
       dom.searchBtn=$('search-btn');
@@ -2584,7 +2650,6 @@
 
         enabled.forEach(s=>{
           if(s==='netease'){
-            // ✅ 网易云：正确分页
             state.perSourcePage.netease = (state.perSourcePage.netease || 1) + 1;
           }else{
             state.perSourceCurrentLimit[s]=(state.perSourceCurrentLimit[s]||state.perSourceLimit)+state.perSourceLimit;
@@ -2602,7 +2667,6 @@
         }
       });
 
-      // 监听 playlist-main 的滚动，实现“滚动到底加载更多”
       dom.playlistMain.addEventListener('scroll',()=>{
         const activeTab=document.querySelector('.playlist-tab.active')?.dataset.tab||'results';
         if(activeTab!=='results')return;
@@ -2738,6 +2802,8 @@
         if(e.key==='/'&&!typing){e.preventDefault();dom.searchInput.focus();dom.searchInput.select();}
       });
     }
+
+    // ===================== 初始化 =====================
 
     function init(){
       setupDOM();
