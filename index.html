@@ -1808,47 +1808,65 @@
       return added;
     }
 
-    // QQ 搜索
+    // QQ 搜索：使用咸鱼 QQ 音乐搜索 API（只拿列表，不拿 url）
     async function searchQQ(kw, limit){
-      const url=`https://api.baka.plus/meting/?server=tencent&type=search&id=0&yrc=false&keyword=${encodeURIComponent(kw)}&source=qq&limit=${encodeURIComponent(limit)}`;
-      let added=0;
-      try{
-        const res=await fetch(url);
-        const json=await res.json();
-        if(json.code!==200||!json.data||!Array.isArray(json.data.results))return 0;
-        for(const it of json.data.results){
-          const uid=`qq-${it.id}`;
-          if(state.trackMap.has(uid))continue;
-          const track={
+      const QQ_API_KEY = 'sk-62cdb03e2270eb3968cca7881399f412';
+      const url =
+        `https://apii.xianyuw.cn/api/v1/qq-music-search` +
+        `?key=${encodeURIComponent(QQ_API_KEY)}` +
+        `&msg=${encodeURIComponent(kw)}` +
+        `&br=hires&no_url=0`;
+
+      let added = 0;
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+
+        // 新接口：code === 200 且 data 为数组
+        if (json.code !== 200 || !Array.isArray(json.data)) return 0;
+
+        // 前端自己做 limit 截断
+        const list = json.data.slice(0, limit || json.data.length);
+
+        list.forEach((it, idx) => {
+          const uid = `qq-${it.id}`;
+          if (state.trackMap.has(uid)) return;
+
+          const track = {
             uid,
-            source:'qq',
-            displayIndex:0,
-            keyword:kw,
-            songid:it.id,
-            title:it.name||'',
-            artist:it.artist||'',
-            album:it.album||'',
-            cover:it.pic||null,
-            audioUrl:it.url||null,
-            lrc:null,
-            lrcUrl:it.lrc||null,
-            detailsLoaded:!!it.url,
-            quality:null,
-            qualityLabel:null
+            source: 'qq',
+            displayIndex: idx + 1,
+            keyword: kw,
+
+            // 方便后面根据 id 再检索（如果接口支持的话）
+            qqId: it.id,
+            songid: it.id,   // 保留旧字段名，防止其它地方万一用到
+
+            title: it.title || '',
+            artist: it.author || '',
+            album: it.desc || '',
+
+            cover: it.cover || null,
+
+            audioUrl: null,   // 搜索阶段不返回 url
+            lrc: null,
+            lrcUrl: null,
+
+            detailsLoaded: false,
+
+            quality: null,
+            qualityLabel: null,
+            qqQualityText: it.quality || null
           };
 
-          // 如果搜索阶段就已经有 url，则直接用链接判断音质
-          if (track.audioUrl) {
-            const q = inferQualityFromUrl(track.audioUrl);
-            track.quality = q.tag;
-            track.qualityLabel = q.label;
-          }
-
-          state.trackMap.set(uid,track);
+          state.trackMap.set(uid, track);
           state.searchResults.push(track);
           added++;
-        }
-      }catch(e){console.error('qq',e);}
+        });
+
+      } catch (e) {
+        console.error('qq search (xianyuw)', e);
+      }
       return added;
     }
 
@@ -2018,17 +2036,64 @@
       track.detailsLoaded=true;
     }
 
+    // QQ 详情（播放时再请求一次，拿 url + lrc）
     async function fetchQQDetails(track){
-      if(track.lrcUrl&&!track.lrc){
-        try{const r=await fetch(track.lrcUrl);track.lrc=await r.text();}catch(e){}
+      const QQ_API_KEY = 'sk-62cdb03e2270eb3968cca7881399f412';
+
+      // 尽量用「歌名 + 歌手」检索，匹配度更高
+      const keywordCombined =
+        ((track.title || '') + ' ' + (track.artist || '')).trim() ||
+        track.keyword ||
+        '';
+
+      const url =
+        `https://apii.xianyuw.cn/api/v1/qq-music-search` +
+        `?key=${encodeURIComponent(QQ_API_KEY)}` +
+        `&msg=${encodeURIComponent(keywordCombined)}` +
+        `&n=1&br=hires&no_url=0`;
+
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        if (json.code !== 200 || !json.data) {
+          throw new Error('qq detail error');
+        }
+
+        const d = json.data;
+
+        // 基本信息更新一下
+        track.title  = d.title  || track.title;
+        track.artist = d.author || track.artist;
+        track.cover  = d.cover  || track.cover;
+        track.pageUrl = d.link  || track.pageUrl;
+
+        // 播放链接 + 歌词
+        track.audioUrl = d.url  || track.audioUrl;
+        track.lrc      = d.lrc  || track.lrc;
+
+        // 先根据 quality 字段粗略判断一下音质
+        if (d.quality) {
+          if (/hires|无损|flac|ape|wav/i.test(d.quality)) {
+            track.quality = 'lossless';
+            track.qualityLabel = 'LOSSLESS';
+          } else {
+            track.quality = '320k';
+            track.qualityLabel = '320K';
+          }
+        }
+
+        // 再用链接的后缀兜底判断一次
+        if (track.audioUrl && !track.qualityLabel) {
+          const q = inferQualityFromUrl(track.audioUrl);
+          track.quality = q.tag;
+          track.qualityLabel = q.label;
+        }
+
+      } catch (e) {
+        console.error('qq detail (xianyuw)', e);
       }
-      // QQ：如果之前还没标记质量，这里再根据 url 判断一次
-      if (track.audioUrl && !track.qualityLabel) {
-        const q = inferQualityFromUrl(track.audioUrl);
-        track.quality = q.tag;
-        track.qualityLabel = q.label;
-      }
-      track.detailsLoaded=true;
+
+      track.detailsLoaded = true;
     }
 
     async function fetchKuwoDetails(track){
