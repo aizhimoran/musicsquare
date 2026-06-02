@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>皮卡丘的音乐站 - Pikachu Music</title>
+  <meta name="referrer" content="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- 圆润可爱字体 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -384,10 +385,10 @@
       display: inline-block;
       box-shadow: 0 0 6px currentColor;
     }
-    .source-dot.migu   { background:#ffb74d; color:#ffb74d;}
     .source-dot.netease{ background:#ff6b6b; color:#ff6b6b;}
     .source-dot.qq     { background:#4dd0e1; color:#4dd0e1;}
     .source-dot.kuwo   { background:#ba68c8; color:#ba68c8;}
+    .source-dot.joox   { background:#65f7c4; color:#65f7c4;}
 
     .limit-row {
       display: flex;
@@ -585,10 +586,10 @@
       gap:4px;
       background:rgba(0,0,0,0.35);
     }
-    .source-pill.source-migu   { color:#ffb74d; background:rgba(255,183,77,0.12);}
     .source-pill.source-netease{ color:#ff7b7b; background:rgba(255,107,107,0.12);}
     .source-pill.source-qq     { color:#7ee5f0; background:rgba(77,208,225,0.12);}
     .source-pill.source-kuwo   { color:#e2baff; background:rgba(186,104,200,0.12);}
+    .source-pill.source-joox   { color:#9dffd9; background:rgba(101,247,196,0.12);}
 
     .lossless-pill {
       padding:2px 8px;
@@ -1244,7 +1245,7 @@
             <span class="icon">🔍</span>
             <span data-i18n="searchTitle">歌曲搜索</span>
           </div>
-          <span class="chip" data-i18n="searchSubtitle">支持咪咕 / 网易云 / QQ / 酷我</span>
+          <span class="chip" data-i18n="searchSubtitle">支持网易云 / QQ / 酷我 / JOOX</span>
         </div>
         <div class="search-panel-content">
           <div class="search-row ripple-target">
@@ -1255,11 +1256,6 @@
           </div>
 
           <div class="source-row">
-            <label class="source-chip ripple-target">
-              <span class="source-dot migu"></span>
-              <input type="checkbox" data-source="migu" checked />
-              <span>咪咕</span>
-            </label>
             <label class="source-chip ripple-target">
               <span class="source-dot netease"></span>
               <input type="checkbox" data-source="netease" checked />
@@ -1274,6 +1270,11 @@
               <span class="source-dot kuwo"></span>
               <input type="checkbox" data-source="kuwo" checked />
               <span>酷我</span>
+            </label>
+            <label class="source-chip ripple-target">
+              <span class="source-dot joox"></span>
+              <input type="checkbox" data-source="joox" />
+              <span>JOOX</span>
             </label>
           </div>
 
@@ -1394,6 +1395,9 @@
                 <select id="playlist-select"></select>
                 <button id="add-current-btn" class="btn btn-secondary btn-icon ripple-target" title="把当前歌曲加入歌单">＋</button>
                 <button id="new-playlist-btn" class="btn btn-ghost ripple-target" data-i18n="newPlaylist">新建歌单</button>
+                <button id="import-playlist-btn" class="btn btn-ghost ripple-target" data-i18n="importPlaylist">导入歌单</button>
+                <button id="export-playlist-btn" class="btn btn-ghost ripple-target" data-i18n="exportPlaylist">导出歌单</button>
+                <input id="import-playlist-input" type="file" accept="application/json,.json" style="display:none;" />
               </div>
               <div class="playmode-row">
                 <button class="playmode-btn active ripple-target" data-mode="list" title="列表循环">🔁</button>
@@ -1505,7 +1509,7 @@
         shortcutFocusSearch:"聚焦搜索框",
         shortcutCloseModal:"提示：按 Esc 可以关闭弹窗。",
         searchTitle:"歌曲搜索",
-        searchSubtitle:"支持咪咕 / 网易云 / QQ / 酷我",
+        searchSubtitle:"支持网易云 / QQ / 酷我 / JOOX",
         searchButton:"搜索",
         perSourceCount:"每个源加载",
         perSourceCountTail:"首结果",
@@ -1530,6 +1534,8 @@
         playlistInfoFavorites:"收藏列表",
         playlistInfoPlaylist:"歌单",
         newPlaylist:"新建歌单",
+        importPlaylist:"导入歌单",
+        exportPlaylist:"导出歌单",
         footerText:"本站仅作为学习演示，音乐版权归各平台与原作者所有。",
         toastAddedFavorite:"已添加到收藏",
         toastRemovedFavorite:"已从收藏移除",
@@ -1542,16 +1548,21 @@
         toastLyricStyleSwitched:"已切换歌词炫酷效果。",
         toastDownloadNotReady:"当前歌曲还未加载完成，稍后再试。",
         toastPlaylistCreated:"歌单创建成功。",
+        toastPlaylistImported:"导入完成",
+        toastPlaylistImportEmpty:"导入文件里没有可用歌单或收藏。",
+        toastPlaylistImportError:"导入失败，请确认文件是本站导出的 JSON。",
+        toastPlaylistExported:"已导出歌单文件。",
+        toastPlaylistExportEmpty:"暂无可导出的歌单。",
         toastPlaylistEmpty:"当前歌单为空，先添加几首歌吧~",
         toastPlaymodeList:"播放模式：列表循环",
         toastPlaymodeSingle:"播放模式：单曲循环",
         toastPlaymodeShuffle:"播放模式：随机播放",
         toastNeedPlaylistSelected:"请先选择一个歌单。",
         toastNoCurrentTrack:"当前没有正在播放的歌曲。",
-        sourceMigu:"咪咕",
         sourceNetease:"网易云",
         sourceQQ:"QQ音乐",
         sourceKuwo:"酷我",
+        sourceJoox:"JOOX",
         modalNewPlaylistTitle:"新建歌单",
         modalNewPlaylistDesc:"给你的歌单取一个可爱的名字吧～",
         modalConfirm:"确定",
@@ -1573,7 +1584,7 @@
         shortcutFocusSearch:"Focus on search box",
         shortcutCloseModal:"Tip: press Esc to close dialogs.",
         searchTitle:"Search",
-        searchSubtitle:"Supports Migu / Netease / QQ / Kuwo",
+        searchSubtitle:"Supports Netease / QQ / Kuwo / JOOX",
         searchButton:"Search",
         perSourceCount:"Per source",
         perSourceCountTail:"results",
@@ -1598,6 +1609,8 @@
         playlistInfoFavorites:"Favorites List",
         playlistInfoPlaylist:"Playlist",
         newPlaylist:"Create",
+        importPlaylist:"Import",
+        exportPlaylist:"Export",
         footerText:"For demo only. All music copyrights belong to original owners.",
         toastAddedFavorite:"Added to favorites",
         toastRemovedFavorite:"Removed from favorites",
@@ -1610,16 +1623,21 @@
         toastLyricStyleSwitched:"Lyrics FX toggled.",
         toastDownloadNotReady:"Song not fully loaded yet. Try again later.",
         toastPlaylistCreated:"Playlist created.",
+        toastPlaylistImported:"Import completed",
+        toastPlaylistImportEmpty:"No usable playlists or favorites found in this file.",
+        toastPlaylistImportError:"Import failed. Please choose a JSON file exported by this site.",
+        toastPlaylistExported:"Playlist file exported.",
+        toastPlaylistExportEmpty:"No playlist to export.",
         toastPlaylistEmpty:"Playlist is empty. Add some songs first.",
         toastPlaymodeList:"Play mode: list loop",
         toastPlaymodeSingle:"Play mode: single loop",
         toastPlaymodeShuffle:"Play mode: shuffle",
         toastNeedPlaylistSelected:"Please select a playlist first.",
         toastNoCurrentTrack:"No track is currently playing.",
-        sourceMigu:"Migu",
         sourceNetease:"Netease",
         sourceQQ:"QQ Music",
         sourceKuwo:"Kuwo",
+        sourceJoox:"JOOX",
         modalNewPlaylistTitle:"Create Playlist",
         modalNewPlaylistDesc:"Give your playlist a cute name!",
         modalConfirm:"Confirm",
@@ -1629,10 +1647,10 @@
 
     const state = {
       language:'zh',
-      enabledSources:{migu:true, netease:true, qq:true, kuwo:true},
+      enabledSources:{netease:true, qq:true, kuwo:true, joox:false},
       perSourceLimit:10,
-      perSourceCurrentLimit:{migu:10, netease:10, qq:10, kuwo:10},
-      perSourcePage:{migu:1, netease:1, qq:1, kuwo:1},
+      perSourceCurrentLimit:{netease:10, qq:10, kuwo:10, joox:10},
+      perSourcePage:{netease:1, qq:1, kuwo:1, joox:1},
 
       searchKeyword:'',
       searchResults:[],
@@ -1650,6 +1668,8 @@
       lyricsAlt:false,
       muted:false
     };
+
+    const LIBRARY_STORAGE_KEY = 'pikachu-music-library-v1';
 
     const dom = {};
     let audioLevel = 0;
@@ -1669,11 +1689,11 @@
     }
 
     function getInterleavedSearchList(){
-      const grouped={migu:[],netease:[],qq:[],kuwo:[]};
+      const grouped={netease:[],qq:[],kuwo:[],joox:[]};
       state.searchResults.forEach(t=>{if(grouped[t.source])grouped[t.source].push(t);});
       Object.keys(grouped).forEach(k=>grouped[k].sort((a,b)=>(a.displayIndex||0)-(b.displayIndex||0)));
-      const order=['migu','netease','qq','kuwo'];
-      const idx={migu:0,netease:0,qq:0,kuwo:0};
+      const order=['netease','qq','kuwo','joox'];
+      const idx={netease:0,qq:0,kuwo:0,joox:0};
       const out=[];
       let added=true;
       while(added){
@@ -1703,6 +1723,7 @@
       dom.playlistNameInput.placeholder = lang==='zh'
         ? '例如：通勤歌单 / 宝可梦歌单'
         : 'e.g. Commute mix / Pokemon list';
+      if(dom.playlistSelect) renderPlaylistOptions();
       updatePlaylistInfoLabel();
     }
 
@@ -1736,64 +1757,272 @@
       return {tag:'320k', label:'320K'};
     }
 
-    // ===================== 各平台搜索 =====================
+    // ===================== 歌单缓存 / 导出 =====================
 
-    async function searchMigu(kw,limit){
-      const url=`https://api.xcvts.cn/api/music/migu?gm=${encodeURIComponent(kw)}&n=&num=${encodeURIComponent(limit)}&type=json`;
-      let added=0;
+    function serializeTrack(track){
+      if(!track) return null;
+      const keys=[
+        'uid','source','displayIndex','keyword','songid','songMid','qqId','qqSearchKey','qqIndex',
+        'jooxIndex','jooxSongId','jooxSongMid','title','artist','album','cover','pageUrl',
+        'quality','qualityLabel','qqQualityText','jooxQualityText','pay'
+      ];
+      const out={};
+      keys.forEach(k=>{
+        if(track[k]!==undefined && track[k]!==null && track[k]!=='') out[k]=track[k];
+      });
+      out.detailsLoaded=false;
+      out.audioUrl=null;
+      out.lrc=null;
+      out.lrcUrl=null;
+      return out.uid ? out : null;
+    }
+
+    function deserializeTrack(raw){
+      if(raw && raw.source === 'migu') return null;
+      const track=serializeTrack(raw);
+      if(!track) return null;
+      track.detailsLoaded=false;
+      track.audioUrl=null;
+      track.lrc=null;
+      track.lrcUrl=null;
+      return track;
+    }
+
+    function getLibrarySnapshot(){
+      return {
+        version:1,
+        savedAt:new Date().toISOString(),
+        favorites:state.favorites.map(serializeTrack).filter(Boolean),
+        playlists:state.playlists.map(pl=>({
+          id:pl.id,
+          name:pl.name,
+          tracks:(pl.tracks||[]).map(serializeTrack).filter(Boolean)
+        }))
+      };
+    }
+
+    function saveLibraryToStorage(){
       try{
-        const res=await fetch(url);
-        const json=await res.json();
-        if(json.code!==200||!Array.isArray(json.data))return 0;
-        for(const it of json.data){
-          const n=it.n;
-          const uid=`migu-${kw}-${n}-${it.title}-${it.singer}`;
-          if(state.trackMap.has(uid))continue;
-          const track={
-            uid,source:'migu',displayIndex:n||0,keyword:kw,
-            requestNum: limit,
-            title:it.title||'',artist:it.singer||'',album:'',
-            cover:null,audioUrl:null,lrc:null,lrcUrl:null,
-            detailsLoaded:false,
-            quality:null,
-            qualityLabel:null
-          };
-          state.trackMap.set(uid,track);
-          state.searchResults.push(track); added++;
+        localStorage.setItem(LIBRARY_STORAGE_KEY, JSON.stringify(getLibrarySnapshot()));
+      }catch(e){
+        console.warn('save library failed', e);
+      }
+    }
+
+    function rebuildLibraryTrackMap(){
+      [...state.favorites, ...state.playlists.flatMap(pl=>pl.tracks||[])].forEach(track=>{
+        if(track && track.uid && !state.trackMap.has(track.uid)){
+          state.trackMap.set(track.uid, track);
         }
-      }catch(e){console.error('migu',e);}
+      });
+    }
+
+    function loadLibraryFromStorage(){
+      try{
+        const raw=localStorage.getItem(LIBRARY_STORAGE_KEY);
+        if(!raw) return;
+        const data=JSON.parse(raw);
+        state.favorites=Array.isArray(data.favorites)
+          ? data.favorites.map(deserializeTrack).filter(Boolean)
+          : [];
+        state.playlists=Array.isArray(data.playlists)
+          ? data.playlists.map((pl,idx)=>({
+              id:pl.id || ('pl-cached-'+idx+'-'+Date.now()),
+              name:pl.name || (state.language==='zh'?'未命名歌单':'Untitled Playlist'),
+              tracks:Array.isArray(pl.tracks) ? pl.tracks.map(deserializeTrack).filter(Boolean) : []
+            }))
+          : [];
+        rebuildLibraryTrackMap();
+      }catch(e){
+        console.warn('load library failed', e);
+      }
+    }
+
+    function exportPlaylistData(){
+      const payload=getLibrarySnapshot();
+      const hasAny=payload.favorites.length || payload.playlists.length;
+      if(!hasAny){showToast(t('toastPlaylistExportEmpty'));return;}
+
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      const date=new Date().toISOString().slice(0,10);
+      a.href=url;
+      a.download='pikachu-music-playlists-'+date+'.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast(t('toastPlaylistExported'));
+    }
+
+    function mergeImportedTracks(targetList, rawTracks){
+      let added=0;
+      if(!Array.isArray(rawTracks)) return added;
+
+      rawTracks.forEach(raw=>{
+        const imported=deserializeTrack(raw);
+        if(!imported || !imported.uid) return;
+
+        const track=state.trackMap.get(imported.uid) || imported;
+        if(!state.trackMap.has(track.uid)) state.trackMap.set(track.uid, track);
+
+        if(!targetList.some(item=>item.uid===track.uid)){
+          targetList.push(track);
+          added++;
+        }
+      });
+
       return added;
     }
 
-    // 网易云搜索（用 vkeys，page + num）
+    function importPlaylistData(data){
+      if(!data || typeof data!=='object') throw new Error('invalid import data');
+
+      let addedFavorites=0;
+      let addedPlaylists=0;
+      let addedPlaylistTracks=0;
+
+      addedFavorites=mergeImportedTracks(state.favorites, data.favorites);
+
+      const importedPlaylists=Array.isArray(data.playlists) ? data.playlists : [];
+      importedPlaylists.forEach((pl,idx)=>{
+        if(!pl || typeof pl!=='object') return;
+
+        const fallbackName=state.language==='zh' ? '导入歌单' : 'Imported Playlist';
+        const name=(pl.name || fallbackName).toString().trim() || fallbackName;
+        const rawId=(pl.id || '').toString().trim();
+
+        let target=rawId ? state.playlists.find(item=>item.id===rawId) : null;
+        if(!target) target=state.playlists.find(item=>item.name===name);
+
+        if(!target){
+          let id=rawId || ('pl-import-'+Date.now()+'-'+idx+'-'+Math.random().toString(16).slice(2));
+          if(state.playlists.some(item=>item.id===id)){
+            id='pl-import-'+Date.now()+'-'+idx+'-'+Math.random().toString(16).slice(2);
+          }
+          target={id,name,tracks:[]};
+          state.playlists.push(target);
+          addedPlaylists++;
+        }
+
+        addedPlaylistTracks += mergeImportedTracks(target.tracks, pl.tracks);
+      });
+
+      const totalAdded=addedFavorites + addedPlaylists + addedPlaylistTracks;
+      const hasUsableData=(Array.isArray(data.favorites) && data.favorites.length) || importedPlaylists.length;
+      if(!hasUsableData) return {empty:true, addedFavorites, addedPlaylists, addedPlaylistTracks, totalAdded};
+
+      rebuildLibraryTrackMap();
+      renderPlaylistOptions();
+      saveLibraryToStorage();
+      renderPlaylistList();
+      updateMainFavButton();
+
+      return {empty:false, addedFavorites, addedPlaylists, addedPlaylistTracks, totalAdded};
+    }
+
+    function handleImportPlaylistFile(e){
+      const input=e.target;
+      const file=input.files && input.files[0];
+      if(!file) return;
+
+      const reader=new FileReader();
+      reader.onload=()=>{
+        try{
+          const data=JSON.parse(reader.result);
+          const stat=importPlaylistData(data);
+          if(stat.empty){
+            showToast(t('toastPlaylistImportEmpty'));
+          }else{
+            const msg=state.language==='zh'
+              ? `${t('toastPlaylistImported')}：新增 ${stat.addedPlaylists} 个歌单，${stat.addedFavorites} 首收藏，${stat.addedPlaylistTracks} 首歌单歌曲。`
+              : `${t('toastPlaylistImported')}: ${stat.addedPlaylists} playlists, ${stat.addedFavorites} favorites, ${stat.addedPlaylistTracks} playlist tracks added.`;
+            showToast(msg);
+          }
+        }catch(err){
+          console.error('import playlist failed', err);
+          showToast(t('toastPlaylistImportError'));
+        }finally{
+          input.value='';
+        }
+      };
+      reader.onerror=()=>{
+        showToast(t('toastPlaylistImportError'));
+        input.value='';
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+
+    function renderPlaylistOptions(){
+      if(!dom.playlistSelect) return;
+      const prev=dom.playlistSelect.value || state.playContext.playlistId;
+      dom.playlistSelect.innerHTML='';
+
+      if(!state.playlists.length){
+        const opt=document.createElement('option');
+        opt.value='';
+        opt.textContent=state.language==='zh'?'暂无歌单':'No playlist';
+        dom.playlistSelect.appendChild(opt);
+        state.playContext.playlistId=null;
+        return;
+      }
+
+      state.playlists.forEach(pl=>{
+        const opt=document.createElement('option');
+        opt.value=pl.id;
+        opt.textContent=pl.name;
+        dom.playlistSelect.appendChild(opt);
+      });
+
+      const nextValue=state.playlists.some(pl=>pl.id===prev) ? prev : state.playlists[0].id;
+      dom.playlistSelect.value=nextValue;
+      state.playContext.playlistId=nextValue;
+    }
+
+    // ===================== 各平台搜索 =====================
+
+    // 网易云搜索：qijieya meting search
     async function searchNetease(kw, page, num){
-      const url=`https://api.vkeys.cn/v2/music/netease?word=${encodeURIComponent(kw)}&page=${encodeURIComponent(page)}&num=${encodeURIComponent(num)}`;
+      const requestLimit=Math.max(1,page||1)*Math.max(1,num||10);
+      const url=`https://api.qijieya.cn/meting/?type=search&id=${encodeURIComponent(kw)}&limit=${encodeURIComponent(requestLimit)}&server=netease`;
       let added=0;
+
+      function pickQueryParam(rawUrl, key){
+        if(!rawUrl)return '';
+        try{
+          return new URL(rawUrl, window.location.href).searchParams.get(key) || '';
+        }catch(e){
+          const m=String(rawUrl).match(new RegExp('[?&]'+key+'=([^&]+)'));
+          return m ? decodeURIComponent(m[1]) : '';
+        }
+      }
+
       try{
         const res=await fetch(url);
         const json=await res.json();
-        if(json.code!==200||!Array.isArray(json.data))return 0;
+        if(!Array.isArray(json))return 0;
 
-        json.data.forEach((it, idx)=>{
-          const songId = it.id;
+        json.forEach((it, idx)=>{
+          const songId = pickQueryParam(it.url, 'id') || `${kw}-${idx+1}`;
           const uid=`netease-${songId}`;
           if(state.trackMap.has(uid))return;
 
           const track={
             uid,
             source:'netease',
-            displayIndex:(Math.max(1,page)-1)*Math.max(1,num) + (idx+1),
+            displayIndex:idx+1,
             keyword:kw,
 
             songid:songId,
-            title:it.song||'',
-            artist:it.singer||'',
-            album:it.album||'',
+            title:it.name||'',
+            artist:it.artist||'',
+            album:'',
 
-            cover:it.cover||null,
-            audioUrl:null,
+            cover:it.pic||null,
+            audioUrl:it.url||null,
             lrc:null,
-            lrcUrl:null,
+            lrcUrl:it.lrc||null,
 
             detailsLoaded:false,
             quality:null,
@@ -1804,38 +2033,42 @@
           added++;
         });
 
-      }catch(e){console.error('netease(vkeys)',e);}
+      }catch(e){console.error('netease(qijieya meting)',e);}
       return added;
     }
 
-    // QQ 搜索：使用咸鱼 QQ 音乐搜索 API（只拿列表，不拿 url）
-    async function searchQQ(kw, limit){
-      const QQ_API_KEY = 'sk-62cdb03e2270eb3968cca7881399f412';
+    // QQ 搜索：使用 tang 的 QQ 音乐搜索 API（只拿列表，不拿 url）
+    async function searchQQ(kw, limit) {
+    // 新接口：返回直接是数组（或有些情况下可能包一层 data，下面做了兼容）
+    const url =
+        `https://tang.api.s01s.cn/music_open_api.php` +
+        `?msg=${encodeURIComponent(kw)}` +
+        `&type=json`;
 
-      // 搜索接口：不带 n，返回 data 为数组
-      const url =
-        `https://apii.xianyuw.cn/api/v1/qq-music-search` +
-        `?key=${encodeURIComponent(QQ_API_KEY)}` +
-        `&msg=${encodeURIComponent(kw)}` +
-        `&br=hires&no_url=0`;
+    let added = 0;
 
-      let added = 0;
-      try {
+    try {
         const res = await fetch(url);
         const json = await res.json();
 
-        if (json.code !== 200 || !Array.isArray(json.data)) return 0;
+        // 兼容：既支持直接数组，也支持 { data: [...] } 这种包装
+        const data = Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : []);
+        if (!Array.isArray(data) || data.length === 0) return 0;
 
         // 按 limit 截断
-        const list = json.data.slice(0, limit || json.data.length);
+        const list = data.slice(0, limit || data.length);
 
         list.forEach((it, idx) => {
-          const uid = `qq-${it.id}`;
-          if (state.trackMap.has(uid)) return;
+        // 新接口里唯一标识是 song_mid
+        const mid = it.song_mid;
+        if (!mid) return;
 
-          const indexInList = idx + 1;  // 1-based，对应接口里的 n
+        const uid = `qq-${mid}`;
+        if (state.trackMap.has(uid)) return;
 
-          const track = {
+        const indexInList = idx + 1; // 1-based：作为 qqIndex / displayIndex
+
+        const track = {
             uid,
             source: 'qq',
 
@@ -1846,18 +2079,19 @@
             keyword: kw,
             qqSearchKey: kw,
 
-            // 这首在 QQ 搜索结果里的序号，用作 n
+            // 这首在 QQ 搜索结果里的序号，用作 n（如果你后续详情接口仍需要 n）
             qqIndex: indexInList,
 
-            // 一些元信息
-            qqId: it.id,
-            songid: it.id, // 保留旧字段名以防别处用到
+            // 元信息
+            qqId: mid,
+            songid: mid, // 保留旧字段名以防别处用到
+            songMid: mid, // 可选：更语义化的字段
 
-            title: it.title || '',
-            artist: it.author || '',
-            album: it.desc || '',
+            title: it.song_title || '',
+            artist: it.singer_name || '',
+            album: '',
 
-            cover: it.cover || null,
+            cover: null, // 新接口没给封面
 
             // 搜索阶段没有 url 和 lrc
             audioUrl: null,
@@ -1868,18 +2102,21 @@
 
             quality: null,
             qualityLabel: null,
-            qqQualityText: it.quality || null
-          };
 
-          state.trackMap.set(uid, track);
-          state.searchResults.push(track);
-          added++;
+            // 新接口返回 pay（如“付费”）
+            qqQualityText: it.pay || null,
+            pay: it.pay || null
+        };
+
+        state.trackMap.set(uid, track);
+        state.searchResults.push(track);
+        added++;
         });
+    } catch (e) {
+        console.error('qq search (tang)', e);
+    }
 
-      } catch (e) {
-        console.error('qq search (xianyuw)', e);
-      }
-      return added;
+    return added;
     }
 
     // 酷我搜索
@@ -1925,6 +2162,55 @@
       return added;
     }
 
+    const JOOX_TOKEN = 'f84ao9lMF_q7husBWRfgUw';
+    const JOOX_BR = 4;
+
+    // JOOX 搜索
+    async function searchJoox(kw, limit){
+      const url=`https://apicx.asia/api/joox_music?msg=${encodeURIComponent(kw)}&token=${encodeURIComponent(JOOX_TOKEN)}&br=${encodeURIComponent(JOOX_BR)}`;
+      let added=0;
+      try{
+        const res=await fetch(url);
+        const json=await res.json();
+        const songs=json && json.code===200 && json.data && Array.isArray(json.data.songs) ? json.data.songs : [];
+        songs.slice(0, limit || songs.length).forEach((it, idx)=>{
+          const songMid=it.songmid || '';
+          const songId=it['歌曲ID'] || songMid || (idx+1);
+          const uid=`joox-${songMid || songId}`;
+          if(state.trackMap.has(uid))return;
+
+          const track={
+            uid,
+            source:'joox',
+            displayIndex:idx+1,
+            keyword:kw,
+            jooxIndex:idx+1,
+            songid:songId,
+            songMid:songMid,
+
+            title:it['歌曲名称']||'',
+            artist:it['歌手']||'',
+            album:it['专辑']||'',
+
+            cover:null,
+            audioUrl:null,
+            lrc:it['歌词内容']||null,
+            lrcUrl:null,
+            detailsLoaded:false,
+            quality:null,
+            qualityLabel:null
+          };
+
+          state.trackMap.set(uid,track);
+          state.searchResults.push(track);
+          added++;
+        });
+      }catch(e){
+        console.error('joox search',e);
+      }
+      return added;
+    }
+
     // ===================== 聚合搜索 =====================
 
     async function searchAllSources(reset){
@@ -1948,11 +2234,10 @@
       const tasks=[];
       for(const s of enabled){
         const limit=state.perSourceCurrentLimit[s]||state.perSourceLimit;
-
-        if(s==='migu')tasks.push(searchMigu(kw,limit));
         if(s==='netease')tasks.push(searchNetease(kw, state.perSourcePage.netease || 1, state.perSourceLimit));
         if(s==='qq')tasks.push(searchQQ(kw,limit));
         if(s==='kuwo')tasks.push(searchKuwo(kw,limit));
+        if(s==='joox')tasks.push(searchJoox(kw,limit));
       }
       let added=0;
       try{
@@ -1979,144 +2264,135 @@
 
     // ===================== 各平台详情 =====================
 
-    async function fetchMiguDetails(track){
-      const num = track.requestNum || state.perSourceCurrentLimit.migu || state.perSourceLimit || 20;
-      const url=`https://api.xcvts.cn/api/music/migu?gm=${encodeURIComponent(track.keyword)}&n=${encodeURIComponent(track.displayIndex||1)}&num=${encodeURIComponent(num)}&type=json`;
-      const res=await fetch(url);
-      const j=await res.json();
-      if(j.code!==200) throw new Error('migu detail');
-
-      Object.assign(track,{
-        title:j.title||track.title,
-        artist:j.singer||track.artist,
-        cover:j.cover||track.cover,
-        audioUrl:j.music_url||track.audioUrl,
-        lrcUrl:j.lrc_url||track.lrcUrl,
-        pageUrl:j.link||track.pageUrl,
-        detailsLoaded:true
-      });
-
-      // 根据音频链接后缀判断音质
-      if (track.audioUrl) {
-        const q = inferQualityFromUrl(track.audioUrl);
-        track.quality = q.tag;
-        track.qualityLabel = q.label;
-      }
-
-      if(track.lrcUrl && !track.lrc){
-        try{
-          const r=await fetch(track.lrcUrl);
-          track.lrc=await r.text();
-        }catch(e){}
-      }
-    }
-
-    // 网易云详情：meting 拿音源 + vkeys 拿歌词
+    // 网易云详情：搜索结果已返回播放、封面、歌词接口，这里只补全缓存歌曲和歌词内容
     async function fetchNeteaseDetails(track){
-      const metingApi=`https://api.qijieya.cn/meting/?type=song&id=${encodeURIComponent(track.songid)}`;
-      const res=await fetch(metingApi);
-      const j=await res.json();
-      if(!Array.isArray(j) || !j.length) throw new Error('netease meting detail empty');
-
-      const d=j[0]||{};
-      Object.assign(track,{
-        title:d.name||track.title,
-        artist:d.artist||track.artist,
-        audioUrl:d.url||track.audioUrl,
-        cover:d.pic||track.cover
-      });
-
-      // 根据音频链接后缀判断音质
-      if (track.audioUrl) {
-        const q = inferQualityFromUrl(track.audioUrl);
-        track.quality = q.tag;
-        track.qualityLabel = q.label;
+      if(track.songid){
+        if(!track.audioUrl){
+          track.audioUrl=`https://api.qijieya.cn/meting/?server=netease&type=url&id=${encodeURIComponent(track.songid)}`;
+        }
+        if(!track.lrcUrl){
+          track.lrcUrl=`https://api.qijieya.cn/meting/?server=netease&type=lrc&id=${encodeURIComponent(track.songid)}`;
+        }
       }
 
-      const lyricApi=`https://api.vkeys.cn/v2/music/netease/lyric?id=${encodeURIComponent(track.songid)}`;
-      try{
-        const lr=await fetch(lyricApi);
-        const lj=await lr.json();
-        if(lj && lj.code===200 && lj.data){
-          track.lrc = lj.data.lrc || track.lrc || null;
-          track.lrcUrl = track.lrcUrl || lyricApi;
+      if(track.audioUrl){
+        const q=inferQualityFromUrl(track.audioUrl);
+        track.quality=q.tag;
+        track.qualityLabel=q.label;
+      }
+
+      if(!track.lrc && track.lrcUrl){
+        try{
+          const lr=await fetch(track.lrcUrl);
+          const contentType=(lr.headers.get('content-type')||'').toLowerCase();
+          if(contentType.includes('json')){
+            const lj=await lr.json();
+            track.lrc =
+              (typeof lj === 'string' ? lj : null) ||
+              lj?.lrc ||
+              lj?.lyric ||
+              lj?.data?.lrc ||
+              lj?.data?.lyric ||
+              (typeof lj?.data === 'string' ? lj.data : null) ||
+              track.lrc ||
+              null;
+          }else{
+            track.lrc=await lr.text();
+          }
+        }catch(e){
+          console.warn('netease(qijieya meting) lyric fetch failed', e);
         }
-      }catch(e){
-        console.warn('netease(vkeys) lyric fetch failed', e);
       }
 
       track.detailsLoaded=true;
     }
 
-    // QQ 详情：根据搜索时的关键词 + 搜索结果序号 qqIndex 拿 url + lrc
-    async function fetchQQDetails(track){
-      const QQ_API_KEY = 'sk-62cdb03e2270eb3968cca7881399f412';
-
-      // 优先用搜索时用过的关键词，保证和原始排序一致
-      const msg =
+    // QQ 详情：根据搜索时的关键词 + song_mid(mid) 拿 url + lrc（tang API）
+    async function fetchQQDetails(track) {
+    // 优先用搜索时用过的关键词，保证和原始排序一致
+    const msg =
         (track.qqSearchKey || track.keyword || '').trim() ||
         ((track.title || '') + ' ' + (track.artist || '')).trim();
 
-      // n = 第几首：优先 qqIndex，其次 displayIndex，最后兜底 1
-      const n =
-        track.qqIndex ||
-        track.displayIndex ||
-        1;
+    // 新接口用 mid：优先 qqId/songMid/songid
+    const mid =
+        (track.qqId || track.songMid || track.songid || '').toString().trim();
 
-      const url =
-        `https://apii.xianyuw.cn/api/v1/qq-music-search` +
-        `?key=${encodeURIComponent(QQ_API_KEY)}` +
-        `&msg=${encodeURIComponent(msg)}` +
-        `&n=${encodeURIComponent(n)}` +
-        `&br=hires&no_url=0`;
+    if (!mid) return;
 
-      try {
+    const url =
+        `https://tang.api.s01s.cn/music_open_api.php` +
+        `?msg=${encodeURIComponent(msg)}` +
+        `&type=json` +
+        `&mid=${encodeURIComponent(mid)}`;
+
+    // 选择一个“最好”的播放链接（你也可以按需改优先级）
+    function pickBestPlayUrl(d) {
+        // lossless
+        if (d.song_play_url_sq) return { url: d.song_play_url_sq, tag: 'lossless', label: 'LOSSLESS', text: `SQ ${d.kbps_sq || ''}`.trim() };
+        if (d.song_play_url_pq) return { url: d.song_play_url_pq, tag: 'lossless', label: 'LOSSLESS', text: `PQ ${d.kbps_pq || ''}`.trim() };
+
+        // other variants
+        if (d.song_play_url_accom) return { url: d.song_play_url_accom, tag: 'hq', label: 'HQ', text: `ACCOM ${d.kbps_accom || ''}`.trim() };
+        if (d.song_play_url_hq) return { url: d.song_play_url_hq, tag: 'hq', label: 'HQ', text: `HQ ${d.kbps_hq || ''}`.trim() };
+
+        if (d.song_play_url_standard) return { url: d.song_play_url_standard, tag: 'standard', label: 'STD', text: `STD ${d.kbps_standard || ''}`.trim() };
+        if (d.song_play_url_fq) return { url: d.song_play_url_fq, tag: 'low', label: 'LOW', text: `FQ ${d.kbps_fq || ''}`.trim() };
+
+        // fallback
+        if (d.song_play_url) return { url: d.song_play_url, tag: null, label: null, text: null };
+
+        return { url: null, tag: null, label: null, text: null };
+    }
+
+    try {
         const res = await fetch(url);
-        const json = await res.json();
-        if (json.code !== 200 || !json.data) {
-          throw new Error('qq detail error');
-        }
+        const d = await res.json();
 
-        const d = json.data;
+        // 基本校验：必须是对象且有 song_mid
+        if (!d || typeof d !== 'object' || !d.song_mid) {
+        throw new Error('qq detail error (invalid response)');
+        }
 
         // 更新基础信息
-        track.title   = d.title  || track.title;
-        track.artist  = d.author || track.artist;
-        track.cover   = d.cover  || track.cover;
-        track.pageUrl = d.link   || track.pageUrl;
+        track.title   = d.song_title || d.song_name || track.title;
+        track.artist  = d.singer_name || track.artist;
+        track.album   = d.album_name || d.album_title || track.album || '';
+        track.cover   = d.album_pic || d.singer_pic || track.cover;
+        track.pageUrl = d.song_h5_url || track.pageUrl;
 
-        // 播放链接 + 歌词
-        track.audioUrl = d.url || track.audioUrl;
-        track.lrc      = d.lrc || track.lrc;
+        // 播放链接（按优先级挑一个）
+        const best = pickBestPlayUrl(d);
+        track.audioUrl = best.url || track.audioUrl;
 
-        track.qqQualityText = d.quality || track.qqQualityText;
+        // 歌词
+        track.lrc = d.song_lyric || d.lyric || track.lrc;
 
-        // 根据 quality 粗略判断一遍
-        if (d.quality) {
-          if (/hires|无损|flac|ape|wav/i.test(d.quality)) {
-            track.quality = 'lossless';
-            track.qualityLabel = 'LOSSLESS';
-          } else {
-            track.quality = '320k';
-            track.qualityLabel = '320K';
-          }
+        // 文本信息（你原来用 qqQualityText，这里塞 vip + kbps/size 等）
+        track.qqQualityText =
+        best.text ||
+        (d.vip ? `VIP:${d.vip}` : null) ||
+        track.qqQualityText;
+
+        // quality / label：先用我们自己的选择，再用你已有 inferQualityFromUrl 兜底
+        if (best.tag && best.label) {
+        track.quality = best.tag;
+        track.qualityLabel = best.label;
         }
 
-        // 再用 url 后缀兜底判断音质（你已有 inferQualityFromUrl）
         if (track.audioUrl) {
-          const q = inferQualityFromUrl(track.audioUrl);
-          if (q && q.label) {
+        const q = inferQualityFromUrl(track.audioUrl);
+        if (q && q.label) {
             track.quality = q.tag;
             track.qualityLabel = q.label;
-          }
+        }
         }
 
         track.detailsLoaded = true;
-
-      } catch (e) {
-        console.error('qq detail (xianyuw)', e);
+    } catch (e) {
+        console.error('qq detail (tang)', e);
         // 失败的话不要把 detailsLoaded 置 true，下次还有机会重试
-      }
+    }
     }
 
     async function fetchKuwoDetails(track){
@@ -2145,12 +2421,94 @@
       }
     }
 
+    async function fetchJooxDetails(track){
+      const n=track.jooxIndex || track.displayIndex || 1;
+      const url=`https://apicx.asia/api/joox_music?msg=${encodeURIComponent(track.keyword)}&n=${encodeURIComponent(n)}&token=${encodeURIComponent(JOOX_TOKEN)}&br=${encodeURIComponent(JOOX_BR)}`;
+      const res=await fetch(url);
+      const j=await res.json();
+      if(!j || j.code!==200 || !j.data) throw new Error('joox detail failed');
+
+      const d=j.data;
+      const playLinks=d['播放链接']||{};
+
+      async function probeJooxAudioUrl(u){
+        if(!u) return false;
+
+        async function request(method, extraOptions){
+          const controller=new AbortController();
+          const timer=setTimeout(()=>controller.abort(),3000);
+          try{
+            const res=await fetch(u,Object.assign({
+              method,
+              cache:'no-store',
+              redirect:'follow',
+              signal:controller.signal
+            },extraOptions||{}));
+            return res && (res.ok || res.status===206 || (res.status>=200 && res.status<400));
+          }finally{
+            clearTimeout(timer);
+          }
+        }
+
+        try{
+          if(await request('HEAD')) return true;
+        }catch(e){
+          // Some music CDN links do not allow HEAD. Try a tiny ranged GET below.
+        }
+
+        try{
+          return await request('GET',{headers:{Range:'bytes=0-0'}});
+        }catch(e){
+          return false;
+        }
+      }
+
+      async function pickJooxPlayUrl(links){
+        const order=['Atmos全景声','无损FLAC','Hi-Res无损','母带无损','OGG 320','MP3 320','AAC 192','OGG 192','MP3 128','AAC 96','AAC 48'];
+        for(const name of order){
+          const u=links[name];
+          if(!u)continue;
+          if(!(await probeJooxAudioUrl(u)))continue;
+          if(/母带|无损|flac|hi-res|atmos/i.test(name) || /\.flac(?:\?|$)/i.test(u)){
+            return {url:u, tag:'lossless', label:'LOSSLESS', text:name};
+          }
+          const m=name.match(/(\d+)$/);
+          if(m)return {url:u, tag:m[1]+'k', label:m[1]+'K', text:name};
+          return {url:u, tag:null, label:null, text:name};
+        }
+        return {url:null, tag:null, label:null, text:null};
+      }
+
+      const best=await pickJooxPlayUrl(playLinks);
+      Object.assign(track,{
+        title:d['歌曲名称']||track.title,
+        artist:d['歌手']||track.artist,
+        album:d['专辑']||track.album,
+        songid:d['歌曲ID']||track.songid,
+        songMid:d.songmid||track.songMid,
+        audioUrl:best.url||track.audioUrl,
+        lrc:d['歌词内容']||track.lrc||null,
+        lrcUrl:null,
+        jooxQualityText:best.text||track.jooxQualityText||null,
+        detailsLoaded:true
+      });
+
+      if(best.tag && best.label){
+        track.quality=best.tag;
+        track.qualityLabel=best.label;
+      }else if(track.audioUrl){
+        const q=inferQualityFromUrl(track.audioUrl);
+        track.quality=q.tag;
+        track.qualityLabel=q.label;
+      }
+    }
+
     async function ensureTrackDetails(track){
       if(track.detailsLoaded && track.audioUrl && (track.lrc || !track.lrcUrl)) return;
       dom.playerStatus.textContent=t('playerStatusLoading');
-      if(track.source==='migu') await fetchMiguDetails(track);
-      else if(track.source==='netease') await fetchNeteaseDetails(track);
+      if(track.source==='netease') await fetchNeteaseDetails(track);
       else if(track.source==='kuwo') await fetchKuwoDetails(track);
+      else if(track.source==='joox') await fetchJooxDetails(track);
       else await fetchQQDetails(track);
     }
 
@@ -2248,9 +2606,9 @@
         dom.trackArtist.textContent=track.artist||'';
 
         const sk=track.source;
-        const key=sk==='migu'?'sourceMigu':
-                  sk==='netease'?'sourceNetease':
-                  sk==='qq'?'sourceQQ':'sourceKuwo';
+        const key=sk==='netease'?'sourceNetease':
+                  sk==='qq'?'sourceQQ':
+                  sk==='joox'?'sourceJoox':'sourceKuwo';
         dom.trackSourcePill.style.display='inline-flex';
         dom.trackSourcePill.className='source-pill source-'+sk;
         dom.trackSourcePill.innerHTML='';
@@ -2377,6 +2735,7 @@
       const i=state.favorites.findIndex(x=>x.uid===tr.uid);
       if(i>=0){state.favorites.splice(i,1);showToast(t('toastRemovedFavorite'));}
       else{state.favorites.push(tr);showToast(t('toastAddedFavorite'));}
+      saveLibraryToStorage();
       updateMainFavButton();
       renderPlaylistList();
     }
@@ -2399,6 +2758,7 @@
         return;
       }
       pl.tracks.push(track);
+      saveLibraryToStorage();
       renderPlaylistList();
       showToast(t('toastAddedToPlaylist'));
     }
@@ -2427,9 +2787,9 @@
         src.className='mini-source';
         const dot=document.createElement('span');
         dot.className='source-dot '+track.source;
-        const key=track.source==='migu'?'sourceMigu':
-                 track.source==='netease'?'sourceNetease':
-                 track.source==='qq'?'sourceQQ':'sourceKuwo';
+        const key=track.source==='netease'?'sourceNetease':
+                 track.source==='qq'?'sourceQQ':
+                 track.source==='joox'?'sourceJoox':'sourceKuwo';
         const txt=document.createElement('span');
         txt.textContent=t(key);
         src.appendChild(dot);src.appendChild(txt);
@@ -2471,17 +2831,14 @@
         dom.playlistSelectRow.style.display='none';
       }else{
         dom.playlistSelectRow.style.display='flex';
+        renderPlaylistOptions();
         if(!state.playlists.length){
-          dom.playlistSelect.innerHTML='';
-          const opt=document.createElement('option');
-          opt.value=''; opt.textContent=state.language==='zh'?'暂无歌单':'No playlist';
-          dom.playlistSelect.appendChild(opt);
           updatePlaylistInfoLabel();
           return;
         }
-        if(!dom.playlistSelect.value)dom.playlistSelect.value=state.playlists[0].id;
         const pl=state.playlists.find(p=>p.id===dom.playlistSelect.value)||state.playlists[0];
         dom.playlistSelect.value=pl.id;
+        state.playContext.playlistId=pl.id;
         list=pl.tracks;
       }
       updatePlaylistInfoLabel();
@@ -2502,9 +2859,9 @@
         const aSpan=document.createElement('span'); aSpan.textContent=track.artist||'';
         const sSpan=document.createElement('span');
         const dot=document.createElement('span'); dot.className='source-dot '+track.source;
-        const key=track.source==='migu'?'sourceMigu':
-                 track.source==='netease'?'sourceNetease':
-                 track.source==='qq'?'sourceQQ':'sourceKuwo';
+        const key=track.source==='netease'?'sourceNetease':
+                 track.source==='qq'?'sourceQQ':
+                 track.source==='joox'?'sourceJoox':'sourceKuwo';
         const txt=document.createElement('span'); txt.textContent=t(key);
         sSpan.appendChild(dot);sSpan.appendChild(txt);
         sub.appendChild(aSpan);sub.appendChild(sSpan);
@@ -2539,10 +2896,12 @@
           const i=state.favorites.findIndex(x=>x.uid===track.uid);
           if(i>=0){state.favorites.splice(i,1);showToast(t('toastRemovedFavorite'));}
           else{state.favorites.push(track);showToast(t('toastAddedFavorite'));}
+          saveLibraryToStorage();
           renderPlaylistList();
           updateMainFavButton();
         });
-
+        act.appendChild(pBtn);
+        act.appendChild(fBtn);
         item.appendChild(index);item.appendChild(meta);item.appendChild(act);
         item.addEventListener('click',()=>pBtn.click());
         wrap.appendChild(item);
@@ -2570,10 +2929,10 @@
       const id='pl-'+Date.now()+'-'+Math.random().toString(16).slice(2);
       const pl={id,name,tracks:[]};
       state.playlists.push(pl);
-      const opt=document.createElement('option');
-      opt.value=pl.id; opt.textContent=pl.name;
-      dom.playlistSelect.appendChild(opt);
+      state.playContext.playlistId=pl.id;
+      renderPlaylistOptions();
       dom.playlistSelect.value=pl.id;
+      saveLibraryToStorage();
       closePlaylistModal();
       renderPlaylistList();
       showToast(t('toastPlaylistCreated'));
@@ -2729,6 +3088,9 @@
       dom.playlistSelectRow=$('playlist-select-row');
       dom.playlistSelect=$('playlist-select');
       dom.newPlaylistBtn=$('new-playlist-btn');
+      dom.importPlaylistBtn=$('import-playlist-btn');
+      dom.importPlaylistInput=$('import-playlist-input');
+      dom.exportPlaylistBtn=$('export-playlist-btn');
       dom.addCurrentBtn=$('add-current-btn');
 
       dom.playlistModal=$('playlist-modal');
@@ -2871,6 +3233,9 @@
       });
 
       dom.newPlaylistBtn.addEventListener('click',openPlaylistModal);
+      dom.importPlaylistBtn.addEventListener('click',()=>dom.importPlaylistInput.click());
+      dom.importPlaylistInput.addEventListener('change',handleImportPlaylistFile);
+      dom.exportPlaylistBtn.addEventListener('click',exportPlaylistData);
       dom.playlistConfirmBtn.addEventListener('click',createPlaylist);
       dom.playlistCancelBtn.addEventListener('click',closePlaylistModal);
       dom.playlistCloseBtn.addEventListener('click',closePlaylistModal);
@@ -2937,10 +3302,13 @@
     function init(){
       setupDOM();
       try{const lg=localStorage.getItem('pikachu-music-lang'); if(lg)state.language=lg;}catch(e){}
+      loadLibraryFromStorage();
       setupParticles();
       setupRipple();
       setupEvents();
       setLanguage(state.language);
+      renderPlaylistOptions();
+      renderPlaylistList();
       setPlaymodeUI();
       dom.audio.volume=parseFloat(dom.volumeSlider.value);
     }
